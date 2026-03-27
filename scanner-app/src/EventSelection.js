@@ -23,7 +23,8 @@ export default function EventSelection() {
     } finally {
       setLoading(false);
     }
-  }, [API]);
+  }, []);
+
 
   useEffect(() => {
     fetchEvents();

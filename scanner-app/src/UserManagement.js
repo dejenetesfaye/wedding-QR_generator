@@ -30,7 +30,8 @@ export default function UserManagement() {
     } finally {
       setLoading(false);
     }
-  }, [API]);
+  }, []);
+
 
   useEffect(() => {
     fetchUsers();

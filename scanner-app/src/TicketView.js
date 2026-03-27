@@ -1,25 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import API from "./config";
 
 export default function TicketView() {
   const { id } = useParams();
   const [guest, setGuest] = useState(null);
   const [error, setError] = useState("");
 
-  const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const fetchGuest = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API}/invite/${id}`);
+      setGuest(res.data);
+    } catch (err) {
+      setError("Invalid Invitation ❌");
+    }
+  }, [id]);
 
   useEffect(() => {
-    const fetchGuest = async () => {
-      try {
-        const res = await axios.get(`${API}/invite/${id}`);
-        setGuest(res.data);
-      } catch (err) {
-        setError("Invalid Invitation ❌");
-      }
-    };
     fetchGuest();
-  }, [id]);
+  }, [fetchGuest]);
+
 
   if (error) {
     return (

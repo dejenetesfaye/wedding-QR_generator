@@ -1,8 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
+import API from "./config";
 
 function parseCSVInput(raw) {
+
   const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
   const guests = [];
   const errors = [];
@@ -58,7 +60,6 @@ export default function GenerateQR() {
     setError("");
 
     try {
-      const API = process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
       console.log(`Sending ${preview.length} guests to backend for Event ${eventId}...`);
       const res = await axios.post(`${API}/invite/generate`, {
         eventId,
@@ -83,8 +84,9 @@ export default function GenerateQR() {
         <h1 className="title" style={{ margin: 0 }}>Generate QR Codes 🖨️</h1>
         <div style={{ display: "flex", gap: "10px" }}>
           <a
-            href={canDownload ? `${process.env.NODE_ENV === "production" ? "" : "http://localhost:5000"}/download/qrcodes.pdf` : "#"}
+            href={canDownload ? `${API}/download/qrcodes.pdf` : "#"}
             className={`btn btn-success ${!canDownload ? "disabled" : ""}`}
+
             style={{ 
               opacity: canDownload ? 1 : 0.5, 
               pointerEvents: canDownload ? "auto" : "none",

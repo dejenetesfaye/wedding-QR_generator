@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
 import axios from "axios";
 import GuestTable from "./GuestTable";
 import { useParams, Link } from "react-router-dom";
@@ -11,7 +12,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ total: 0, checkedIn: 0, remaining: 0 });
   const [search, setSearch] = useState("");
  
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const res = await axios.get(`${API}/invite/${eventId}`);
       setGuests(res.data);
@@ -21,7 +22,8 @@ export default function Dashboard() {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [eventId]);
+
 
   useEffect(() => {
     fetchData();
@@ -29,7 +31,8 @@ export default function Dashboard() {
     // auto refresh every 5 seconds
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
+
 
   const filteredGuests = guests.filter(g =>
     g.name.toLowerCase().includes(search.toLowerCase())
