@@ -5,7 +5,8 @@ export default function GuestTable({ guests }) {
 
   const handleManualCheckIn = async (id) => {
     try {
-      const res = await axios.post(`${API}/invite/${id}/checkin`);
+      const res = await axios.post(`${API}/api/invite/${id}/checkin`);
+
       alert(res.data.message || "Checked-in ✅");
     } catch (err) {
       alert(err.response?.data?.message || "Error checking in");

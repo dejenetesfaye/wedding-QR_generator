@@ -21,18 +21,19 @@ app.use(cors({
 app.use(express.json());
 
 
+// API Routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/events", require("./routes/events"));
+app.use("/api/invite", require("./routes/invite"));
+
 // Serve qrcodes.pdf for download
-app.get("/download/qrcodes.pdf", (req, res) => {
+app.get("/api/download/qrcodes.pdf", (req, res) => {
   const filePath = path.join(__dirname, "qrcodes.pdf");
   res.download(filePath, "qrcodes.pdf", (err) => {
     if (err) res.status(404).json({ message: "PDF not found. Generate first." });
   });
 });
 
-// API Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/events", require("./routes/events"));
-app.use("/invite", require("./routes/invite"));
 
 // API 404 Handler
 app.use("/api", (req, res) => {

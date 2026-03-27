@@ -14,11 +14,12 @@ export default function Dashboard() {
  
   const fetchData = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/invite/${eventId}`);
+      const res = await axios.get(`${API}/api/invite/${eventId}`);
       setGuests(res.data);
 
-      const statRes = await axios.get(`${API}/invite/${eventId}/stats`);
+      const statRes = await axios.get(`${API}/api/invite/${eventId}/stats`);
       setStats(statRes.data);
+
     } catch (e) {
       console.error(e);
     }

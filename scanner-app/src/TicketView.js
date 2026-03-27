@@ -10,8 +10,9 @@ export default function TicketView() {
 
   const fetchGuest = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/invite/${id}`);
+      const res = await axios.get(`${API}/api/invite/${id}`);
       setGuest(res.data);
+
     } catch (err) {
       setError("Invalid Invitation ❌");
     }

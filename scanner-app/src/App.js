@@ -48,8 +48,9 @@ function Home() {
       console.log("Extracted ID:", id);
 
       const res = await axios.get(
-        `${API}/invite/guest/${id}`
+        `${API}/api/invite/guest/${id}`
       );
+
 
       setGuest(res.data);
     } catch (err) {
@@ -61,8 +62,9 @@ function Home() {
   const handleCheckIn = async () => {
     try {
       const res = await axios.post(
-        `${API}/invite/${guest.id}/checkin`
+        `${API}/api/invite/${guest.id}/checkin`
       );
+
 
       setGuest(res.data.guest);
     } catch {

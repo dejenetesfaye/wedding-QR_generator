@@ -61,10 +61,11 @@ export default function GenerateQR() {
 
     try {
       console.log(`Sending ${preview.length} guests to backend for Event ${eventId}...`);
-      const res = await axios.post(`${API}/invite/generate`, {
+      const res = await axios.post(`${API}/api/invite/generate`, {
         eventId,
         guests: preview,
       });
+
       console.log("Generate response:", res.data);
       setMessage(res.data.message);
       setPreview(null);
@@ -84,8 +85,9 @@ export default function GenerateQR() {
         <h1 className="title" style={{ margin: 0 }}>Generate QR Codes 🖨️</h1>
         <div style={{ display: "flex", gap: "10px" }}>
           <a
-            href={canDownload ? `${API}/download/qrcodes.pdf` : "#"}
+            href={canDownload ? `${API}/api/download/qrcodes.pdf` : "#"}
             className={`btn btn-success ${!canDownload ? "disabled" : ""}`}
+
 
             style={{ 
               opacity: canDownload ? 1 : 0.5, 
