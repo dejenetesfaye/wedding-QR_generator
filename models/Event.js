@@ -4,7 +4,9 @@ const eventSchema = new mongoose.Schema({
   name: { type: String, required: true },
   date: { type: Date, required: true },
   managerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  description: { type: String }
+  description: { type: String },
+  qrCustomText: { type: String, default: "Welcome to our wedding!" }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Event", eventSchema);

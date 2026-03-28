@@ -23,15 +23,17 @@ router.get("/", protect, async (req, res) => {
 // @access  Private
 router.post("/", protect, async (req, res) => {
   try {
-    const { name, date, description } = req.body;
+    const { name, date, description, qrCustomText } = req.body;
     
     // For local dev, we allow Managers to create events they own.
     const event = new Event({
       name,
       date,
       description,
+      qrCustomText: qrCustomText || "Welcome to our wedding!",
       managerId: req.user._id
     });
+
 
     const createdEvent = await event.save();
     res.status(201).json(createdEvent);

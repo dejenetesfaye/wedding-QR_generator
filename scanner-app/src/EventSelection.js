@@ -10,9 +10,9 @@ export default function EventSelection() {
   const [showForm, setShowForm] = useState(false);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [qrCustomText, setQrCustomText] = useState("Welcome to our wedding!");
   const [creating, setCreating] = useState(false);
   const { user, logout } = useContext(AuthContext);
-
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -25,7 +25,6 @@ export default function EventSelection() {
     }
   }, []);
 
-
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
@@ -37,13 +36,16 @@ export default function EventSelection() {
       await axios.post(`${API}/api/events`, {
         name: eventName,
         date: eventDate,
+        qrCustomText: qrCustomText,
         description: ""
       });
       setEventName("");
       setEventDate("");
+      setQrCustomText("Welcome to our wedding!");
       setShowForm(false);
       fetchEvents(); // Refresh list
     } catch (err) {
+
       console.error("Error creating event", err);
       alert("Failed to create wedding.");
     } finally {
@@ -108,9 +110,20 @@ export default function EventSelection() {
                 onChange={e => setEventDate(e.target.value)}
               />
             </div>
+            <div style={{ flex: 2, minWidth: "250px" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Invitation Wording (QR Data)</label>
+              <input 
+                required 
+                className="search-input" 
+                placeholder="e.g. Welcome to our Big Day!" 
+                value={qrCustomText}
+                onChange={e => setQrCustomText(e.target.value)}
+              />
+            </div>
             <button type="submit" className="btn btn-primary" disabled={creating} style={{ height: "42px" }}>
               {creating ? "Saving..." : "Save Wedding ✅"}
             </button>
+
           </form>
         </div>
       )}

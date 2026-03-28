@@ -15,6 +15,8 @@ import API from "./config";
 
 
 
+import GuestPortal from "./GuestPortal";
+
 function Home() {
   const { eventId } = useParams();
   const [guest, setGuest] = useState(null);
@@ -22,14 +24,11 @@ function Home() {
   const [lastScan, setLastScan] = useState(0);
 
   const handleScan = async (scannedText) => {
-    // Debounce: Ignore scans that happen within 2 seconds of each other
     const now = Date.now();
     if (now - lastScan < 2000) return;
     setLastScan(now);
 
     try {
-      console.log("Processing Scan:", scannedText);
-      
       let id = "";
       if (scannedText.includes("ID:")) {
         id = scannedText.split("ID:").pop().trim();
@@ -39,59 +38,36 @@ function Home() {
         id = scannedText.trim();
       }
 
-      console.log("Extracted ID:", id);
-
-      // 1. Fetch guest details
       const res = await axios.get(`${API}/api/invite/guest/${id}`);
       const scannedGuest = res.data;
 
-      // 2. AUTO-CHECK-IN if not already checked in
       if (!scannedGuest.checkedIn) {
-        console.log("🎟️ Auto-Checking-In guest:", scannedGuest.name);
         const checkInRes = await axios.post(`${API}/api/invite/${scannedGuest.id}/checkin`);
-        setGuest(checkInRes.data.guest); // Show updated guest with check-in timestamp
+        setGuest(checkInRes.data.guest);
       } else {
-        console.log("ℹ️ Guest already checked in:", scannedGuest.name);
-        setGuest(scannedGuest); // Still show the card to let scanner know they are valid but already in
+        setGuest(scannedGuest);
       }
 
     } catch (err) {
       console.error("Scan error:", err);
-      setGuest({ error: "Invalid QR ❌ (Try holding still or scanning from further away)" });
-    }
-  };
-
-  const handleCheckIn = async () => {
-    try {
-      const res = await axios.post(
-        `${API}/api/invite/${guest.id}/checkin`
-      );
-
-
-      setGuest(res.data.guest);
-    } catch {
-      alert("Error checking in");
+      setGuest({ error: "Invalid QR ❌" });
     }
   };
 
   return (
-    <div className="app-container">
-      <div className="top-bar">
-        <h1 className="title" style={{margin: 0}}>Scanner 🎉</h1>
-        
-        <Link to={`/dashboard/${eventId}`} className="btn btn-primary">
-          Dashboard 📊
-        </Link>
-      </div>
-
-      <Scanner onScan={handleScan} />
-
-      {guest?.error ? (
-        <div className="result-card" style={{borderTopColor: '#ef4444'}}>
-          <h2 style={{color: '#ef4444', marginBottom: 0}}>{guest.error}</h2>
-        </div>
+    <div className="app-container" style={{padding: 0}}>
+      {guest ? (
+        <ResultCard data={guest} />
       ) : (
-        <ResultCard data={guest} onCheckIn={handleCheckIn} />
+        <>
+          <div className="top-bar" style={{padding: '1rem'}}>
+            <h2 className="title" style={{margin: 0, fontSize: '1.5rem'}}>Gate Scanner 💍</h2>
+            <Link to={`/dashboard/${eventId}`} className="btn btn-primary" style={{padding: '0.5rem 1rem'}}>
+              Exit 📊
+            </Link>
+          </div>
+          <Scanner onScan={handleScan} />
+        </>
       )}
     </div>
   );
@@ -107,6 +83,7 @@ function App() {
         {/* Scanners can scan without login if they have the specific event link. */}
         <Route path="/scan/:eventId" element={<Home />} />
         <Route path="/ticket/:id" element={<TicketView />} />
+        <Route path="/guest-access/:eventId" element={<GuestPortal />} />
 
         {/* Protected Manager Routes */}
         <Route path="/events" element={<ProtectedRoute><EventSelection /></ProtectedRoute>} />
@@ -117,5 +94,6 @@ function App() {
     </AuthProvider>
   );
 }
+
 
 export default App;

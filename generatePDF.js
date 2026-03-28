@@ -2,90 +2,129 @@ const QRCode = require("qrcode");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const Guest = require("./models/Guest");
+const Event = require("./models/Event");
 
 /**
  * Generates/Updates the qrcodes.pdf for a specific event.
- * Uses the existing Mongoose connection.
  */
 const generatePDF = async (eventId) => {
   if (!eventId) {
     throw new Error("No eventId provided to generatePDF.");
   }
 
-  const guests = await Guest.find({ eventId });
+  const [guests, event] = await Promise.all([
+    Guest.find({ eventId }),
+    Event.findById(eventId)
+  ]);
 
   if (guests.length === 0) {
     console.log("No guests found for this event. Skipping PDF.");
     return;
   }
 
+  const qrCustomText = event?.qrCustomText || "Welcome to our wedding!";
+
   const doc = new PDFDocument({ margin: 20 });
   const stream = fs.createWriteStream("qrcodes.pdf");
   doc.pipe(stream);
 
-  const qrSize = 100;
-  const margin = 20;
+  const cardW = 160;
+  const cardH = 220;
+  const margin = 25;
   const pageWidth = doc.page.width;
 
-  const itemsPerRow = Math.floor((pageWidth - margin * 2) / (qrSize + margin + 15));
+  const itemsPerRow = Math.floor((pageWidth - margin * 2) / (cardW + margin));
   let x = margin;
   let y = margin;
   let count = 0;
 
   for (const guest of guests) {
-    // User manual change (Keep invitation text as requested)
-    const baseUrl = `Dear ${guest.name}, you are invited to Bamlak and Yohanes weeding.`;
     const designCredit = "Designed by Malda Decor (+251 91183 4473)";
-    const qrData = `${baseUrl} / ${designCredit} ID:${guest.id}`;
+    const qrData = `${qrCustomText} / ${designCredit} ID:${guest.id}`;
 
-    // Draw card border
-    doc.roundedRect(x - 10, y - 10, qrSize + 20, qrSize + 40, 8)
-      .lineWidth(1.5)
-      .strokeColor("#E5E7EB")
-      .stroke();
+    // 1. Draw Golden Background (Sunburst effect is tricky in PDFkit without many lines, so we'll use a soft gold fill)
+    doc.save();
+    doc.roundedRect(x, y, cardW, cardH, 12).clip();
+    doc.fillColor("#FFFBF2").rect(x, y, cardW, cardH).fill();
+    
+    // Draw Sunburst Rays (Simplified for PDF)
+    doc.fillColor("#F9E2AF");
+    const rays = 12;
+    const cx = x + cardW / 2;
+    const cy = y + cardH / 2;
+    for (let i = 0; i < rays; i++) {
+        const start = (i * 2 * Math.PI) / rays;
+        const end = ((i + 0.4) * 2 * Math.PI) / rays;
+        doc.moveTo(cx, cy)
+           .lineTo(cx + Math.cos(start) * 300, cy + Math.sin(start) * 300)
+           .lineTo(cx + Math.cos(end) * 300, cy + Math.sin(end) * 300)
+           .fill();
+    }
+    doc.restore();
 
+    // 2. White Card Overlay
+    const padding = 15;
+    doc.roundedRect(x + padding, y + padding, cardW - padding * 2, cardH - padding * 2, 8)
+       .fillColor("#FFFFFF")
+       .fill();
+
+    // 3. Header "Welcome"
+    doc.fillColor("#B8860B")
+       .fontSize(16)
+       .font("Helvetica-Bold")
+       .text("Welcome", x, y + 35, { width: cardW, align: "center" });
+
+    // 4. QR Code
     const qrImage = await QRCode.toDataURL(qrData, {
-      width: qrSize * 4, // Higher sample density for better print quality
-      margin: 5,        // More white space around the QR
-      color: { dark: "#000000", light: "#FFFFFF" }, // Pure black for max contrast
-      errorCorrectionLevel: "Q" // Robust Quartile correction
+      width: 400,
+      margin: 1,
+      color: { dark: "#000000", light: "#FFFFFF" },
+      errorCorrectionLevel: "Q"
     });
 
     const base64Data = qrImage.replace(/^data:image\/png;base64,/, "");
     const buffer = Buffer.from(base64Data, "base64");
-    doc.image(buffer, x, y, { width: qrSize });
+    doc.image(buffer, x + 35, y + 65, { width: 90 });
 
-    // Logo overlay removed for faster scanning
-    
-    doc.fillColor("#374151")
-      .fontSize(8)
-      .text(guest.name, x, y + qrSize + 8, {
-        width: qrSize, align: "center"
-      });
+    // 5. Footer "Show me at the gate"
+    doc.fillColor("#B8860B")
+       .fontSize(10)
+       .text("Show me at the gate", x, y + 165, { width: cardW, align: "center" });
+
+    // 6. Guest Name
+    doc.fillColor("#6B7280")
+       .fontSize(8)
+       .font("Helvetica")
+       .text(guest.name.toUpperCase(), x, y + 185, { width: cardW, align: "center" });
+
+    // 7. Outer Luxury Border
+    doc.roundedRect(x, y, cardW, cardH, 12)
+       .lineWidth(1)
+       .strokeColor("#D4AF37")
+       .stroke();
 
     count++;
-    x += qrSize + margin + 20;
+    x += cardW + margin;
 
     if (count % itemsPerRow === 0) {
       x = margin;
-      y += qrSize + 60;
+      y += cardH + margin;
     }
 
-    if (y + qrSize + 40 > doc.page.height) {
+    if (y + cardH + margin > doc.page.height) {
       doc.addPage();
       x = margin;
       y = margin;
     }
   }
 
-  // Use a Promise to wait for the FILE STREAM to fully finish writing
   await new Promise((resolve, reject) => {
     stream.on("finish", resolve);
     stream.on("error", reject);
     doc.end();
   });
 
-  console.log(`✅ PDF fully written for event ${eventId}: qrcodes.pdf`);
+  console.log(`✅ Stylish PDF fully written for event ${eventId}: qrcodes.pdf`);
 };
 
 module.exports = { generatePDF };

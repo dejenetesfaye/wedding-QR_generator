@@ -1,37 +1,31 @@
-export default function ResultCard({ data, onCheckIn }) {
+export default function ResultCard({ data }) {
   if (!data) return null;
 
   return (
-    <div className="result-card">
-      <h2>{data.name}</h2>
+    <div className="minimal-scanner-result" style={{
+      background: data.error ? 'rgba(239, 68, 68, 0.95)' : 'rgba(15, 23, 42, 0.98)',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <h1 style={{fontSize: '3rem', marginBottom: '1rem'}}>{data.error ? '❌' : '✅'}</h1>
+      <h2 style={{ fontSize: '2.5rem', margin: '0 0 1rem 0' }}>
+        {data.error ? "INVALID QR" : data.name}
+      </h2>
 
-      <div className="result-details">
-        <div>
-          <span className="stat-label" style={{display: 'block', marginBottom: '8px'}}>Status</span>
-          <span className={data.invited ? "badge badge-success" : "badge badge-danger"}>
-            {data.invited ? "Invited ✅" : "Not Invited ❌"}
-          </span>
+      {data.error ? (
+        <p style={{ fontSize: '1.2rem'}}>{data.error}</p>
+      ) : (
+        <div className="checkin-success">
+          ENTRY ALLOWED
         </div>
-
-        <div>
-          <span className="stat-label" style={{display: 'block', marginBottom: '8px'}}>Checked In</span>
-          <span className={data.checkedIn ? "badge badge-warning" : "badge badge-success"}>
-            {data.checkedIn ? "Yes ⚠️" : "No"}
-          </span>
-        </div>
-      </div>
-
-      <div style={{marginTop: '1.5rem'}}>
-        {data.checkedIn ? (
-          <div className="checkin-success">
-            ENTRY ALLOWED ✅
-          </div>
-        ) : (
-          <button className="btn btn-success" onClick={onCheckIn} style={{width: '100%', fontSize: '1.1rem', padding: '1rem'}}>
-             Allow Entry ✅
-          </button>
-        )}
-      </div>
+      )}
+      
+      <button 
+        className="btn btn-primary" 
+        style={{marginTop: '2rem', padding: '1rem 2rem'}}
+        onClick={() => window.location.reload()}
+      >
+        NEXT GUEST ➡️
+      </button>
     </div>
   );
 }

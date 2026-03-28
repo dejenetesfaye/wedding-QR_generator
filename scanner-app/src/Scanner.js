@@ -120,7 +120,7 @@ export default function Scanner({ onScan }) {
 
   return (
     <div className="scanner-container" style={{ position: "relative" }}>
-      <div id="reader" style={{ width: "100%", borderRadius: "12px", overflow: "hidden" }} />
+      <div id="reader" style={{ width: "100%", overflow: "hidden" }} />
       
       {error && (
         <div style={{ color: "var(--danger)", padding: "10px", textAlign: "center", fontSize: "0.9rem" }}>
@@ -136,33 +136,6 @@ export default function Scanner({ onScan }) {
           <button className="btn btn-primary" onClick={startScanner}>Start Camera 📷</button>
         </div>
       )}
-
-      <div style={{ 
-        textAlign: "center", 
-        padding: "10px", 
-        borderTop: "1px solid #eee", 
-        marginTop: "10px",
-        background: "#f9fafb",
-        borderBottomLeftRadius: "12px",
-        borderBottomRightRadius: "12px"
-      }}>
-        <label style={{ 
-          cursor: "pointer", 
-          color: "var(--primary)", 
-          fontWeight: 500,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "5px"
-        }}>
-          <span>📁 Scan from Image / File</span>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileScan} 
-            style={{ display: "none" }} 
-          />
-        </label>
-      </div>
     </div>
   );
 }

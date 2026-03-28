@@ -116,4 +116,35 @@ router.get("/guest/:id", async (req, res) => {
   }
 });
 
+// PUBLIC LOOKUP for guests (to download their own QR)
+router.get("/lookup/:eventId/:phone", async (req, res) => {
+  try {
+    const { eventId, phone } = req.params;
+    
+    // Exact match or contains (be careful with formatting)
+    const guest = await Guest.findOne({ 
+      eventId, 
+      phone: { $regex: phone.trim(), $options: 'i' } 
+    });
+
+    if (!guest) {
+      return res.status(404).json({ message: "Guest not found with that phone number. 🔎" });
+    }
+
+    // Also get event details to provide the custom text
+    const event = await Event.findById(eventId);
+
+    res.json({
+      guest,
+      eventInfo: {
+        name: event?.name,
+        qrCustomText: event?.qrCustomText || "Welcome to our wedding!"
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

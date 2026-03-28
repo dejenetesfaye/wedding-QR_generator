@@ -1,64 +1,95 @@
-import QRCode from "qrcode";
-
 /**
- * Generates a "Beautifully Framed" QR code for an individual guest and downloads it as PNG.
- * Includes the guest's name and a clean border.
+ * Generates a "Luxury Framed" QR code for an individual guest and downloads it as PNG.
+ * Includes "Welcome", "Show me at the gate", and a golden sunburst background.
  */
-export const downloadGuestQR = async (guest) => {
+export const downloadGuestQR = async (guest, customText) => {
   if (!guest || !guest.id) return;
 
   try {
-    // 1. Generate the standard QR Data (matching the PDF format)
-    const baseUrl = `Dear ${guest.name}, you are invited to Bamlak and Yohanes weeding.`;
+    // 1. Generate the QR Data
     const designCredit = "Designed by Malda Decor (+251 91183 4473)";
-    const qrData = `${baseUrl} / ${designCredit} ID:${guest.id}`;
+    const qrData = `${customText || "Welcome to our wedding!"} / ${designCredit} ID:${guest.id}`;
 
-    // 2. Create a canvas for the "Frame"
+    // 2. Create a canvas
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     
-    const qrSize = 600;      // High resolution for printing
-    const padding = 60;     // Space for the frame
-    const textHeight = 80;   // Space for the name at the bottom
+    const w = 800;
+    const h = 1100;
+    canvas.width = w;
+    canvas.height = h;
+
+    // 3. Draw Golden Sunburst Background
+    const centerX = w / 2;
+    const centerY = h / 2;
     
-    canvas.width = qrSize + (padding * 2);
-    canvas.height = qrSize + (padding * 2) + textHeight;
+    // Solid background
+    ctx.fillStyle = "#FFFBF2";
+    ctx.fillRect(0, 0, w, h);
 
-    // 3. Draw the background and frame
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Sunburst rays
+    ctx.fillStyle = "#F9E2AF";
+    const rays = 20;
+    for (let i = 0; i < rays; i++) {
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        const startAngle = (i * 2 * Math.PI) / rays;
+        const endAngle = ((i + 0.5) * 2 * Math.PI) / rays;
+        ctx.arc(centerX, centerY, Math.max(w, h), startAngle, endAngle);
+        ctx.lineTo(centerX, centerY);
+        ctx.fill();
+    }
 
-    // Subtle blue border (matching the theme)
-    ctx.strokeStyle = "#1E3A8B";
-    ctx.lineWidth = 10;
-    ctx.strokeRect(padding / 2, padding / 2, canvas.width - padding, canvas.height - padding);
+    // White Overlay for QR area
+    const qrBoxW = 600;
+    const qrBoxH = 850;
+    ctx.fillStyle = "white";
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = "rgba(0,0,0,0.15)";
+    ctx.fillRect((w - qrBoxW) / 2, (h - qrBoxH) / 2, qrBoxW, qrBoxH);
+    ctx.shadowBlur = 0; // reset
 
-    // 4. Generate the QR Code onto a temporary canvas
+    // 4. Draw "Welcome" Header
+    ctx.fillStyle = "#B8860B";
+    ctx.font = "bold 80px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Welcome", w / 2, 250);
+
+    // 5. Generate QR Code
     const qrCanvas = document.createElement("canvas");
     await QRCode.toCanvas(qrCanvas, qrData, {
-      width: qrSize,
-      margin: 2,
+      width: 450,
+      margin: 1,
       color: { dark: "#000000", light: "#ffffff" },
       errorCorrectionLevel: "Q"
     });
+    ctx.drawImage(qrCanvas, (w - 450) / 2, 330);
 
-    // 5. Draw QR onto the main canvas
-    ctx.drawImage(qrCanvas, padding, padding);
+    // 6. Draw Footer Text
+    ctx.font = "bold 44px 'Outfit', sans-serif";
+    ctx.fillText("Show me at the gate", w / 2, 850);
 
-    // 6. Draw Guest Name
-    ctx.fillStyle = "#1E3A8B";
-    ctx.font = "bold 42px 'Outfit', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(guest.name.toUpperCase(), canvas.width / 2, canvas.height - 60);
+    // 7. Draw Guest Name (Subtle)
+    ctx.font = "30px 'Outfit', sans-serif";
+    ctx.fillStyle = "#6B7280";
+    ctx.fillText(guest.name.toUpperCase(), w / 2, 920);
 
-    // 7. Trigger download
+    // 8. LUXURY BORDER
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 15;
+    ctx.strokeRect(40, 40, w - 80, h - 80);
+    ctx.strokeStyle = "#D4AF37";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(55, 55, w - 110, h - 110);
+
+    // 9. Trigger download
     const link = document.createElement("a");
-    link.download = `Wedding_QR_${guest.name.replace(/\s+/g, "_")}.png`;
+    link.download = `Invitation_${guest.name.replace(/\s+/g, "_")}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
 
   } catch (err) {
-    console.error("Failed to generate individual QR:", err);
-    alert("Could not generate individual QR code.");
+    console.error("QR Generation error:", err);
   }
 };
+
