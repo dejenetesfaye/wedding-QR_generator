@@ -10,49 +10,60 @@ const { generatePDF } = require("../generatePDF");
 // PUBLIC UNIVERSAL LOOKUP (No eventId needed, searches all events)
 router.get("/lookup-universal", async (req, res) => {
   try {
-    const phoneNumber = req.query.phone;
-    
-    if (!phoneNumber) {
+    const phoneInput = req.query.phone || "";
+    if (!phoneInput) {
       return res.status(400).json({ message: "Phone number is required." });
     }
 
-    const escapedPhone = phoneNumber.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Robust matching: Extract only digits and match the last 9 digits
+    // This handles +251..., 09..., or numbers with spaces/dashes
+    const digits = phoneInput.replace(/\D/g, "");
+    if (digits.length < 9) {
+      return res.status(400).json({ message: "Please enter a valid phone number (at least 9 digits)." });
+    }
+    const last9 = digits.slice(-9);
 
+    // Search for guest whose phone number ends with these 9 digits
     const guest = await Guest.findOne({ 
-      phone: { $regex: escapedPhone, $options: 'i' } 
+      phone: { $regex: last9 + "$" } 
     }).sort({ createdAt: -1 });
 
     if (!guest) {
       return res.status(404).json({ message: "No invitation found for this phone number. 🔎" });
     }
 
-    let eventInfo = { name: "Wedding Event", qrCustomText: "Welcome!" };
+    // Get event details safely
+    let eventName = "Wedding Event";
+    let qrText = "Welcome to our wedding!";
+    
     if (guest.eventId) {
       try {
         const event = await Event.findById(guest.eventId);
         if (event) {
-          eventInfo = {
-            name: event.name,
-            qrCustomText: event.qrCustomText || "Welcome to our wedding!"
-          };
+          eventName = event.name || eventName;
+          qrText = event.qrCustomText || qrText;
         }
       } catch (e) {
-        console.error("Event lookup error:", e);
+        console.error("Event fetch error in lookup:", e);
       }
     }
 
     res.json({
       guest,
-      eventInfo
+      eventInfo: {
+        name: eventName,
+        qrCustomText: qrText
+      }
     });
 
   } catch (err) {
     console.error("Universal lookup crash:", err);
-    res.status(500).json({ message: "Internal Server Error: " + err.message });
+    res.status(500).json({ message: "Lookup Error: " + err.message });
   }
 });
 
 // PUBLIC LOOKUP for guests (to download their own QR)
+
 router.get("/lookup/:eventId/:phone", async (req, res) => {
   try {
     const { eventId, phone } = req.params;
