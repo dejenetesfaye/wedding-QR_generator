@@ -1,5 +1,8 @@
+import QRCode from "qrcode";
+
 /**
  * Generates a "Luxury Framed" QR code for an individual guest and downloads it as PNG.
+
  * Includes "Welcome", "Show me at the gate", and a golden sunburst background.
  */
 export const downloadGuestQR = async (guest, customText) => {
