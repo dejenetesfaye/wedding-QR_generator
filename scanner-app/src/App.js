@@ -84,6 +84,8 @@ function App() {
         <Route path="/scan/:eventId" element={<Home />} />
         <Route path="/ticket/:id" element={<TicketView />} />
         <Route path="/guest-access/:eventId" element={<GuestPortal />} />
+        <Route path="/invitation" element={<GuestPortal />} />
+
 
         {/* Protected Manager Routes */}
         <Route path="/events" element={<ProtectedRoute><EventSelection /></ProtectedRoute>} />

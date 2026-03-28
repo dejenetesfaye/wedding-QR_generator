@@ -18,11 +18,15 @@ export default function GuestPortal() {
     setGuestData(null);
 
     try {
-      // API call to lookup guest by phone + eventId
-      const res = await axios.get(`${API}/api/invite/lookup/${eventId}/${phone}`);
+      // Use eventId if present, otherwise use universal lookup
+      const url = eventId 
+        ? `${API}/api/invite/lookup/${eventId}/${phone}` 
+        : `${API}/api/invite/lookup-universal?phone=${encodeURIComponent(phone)}`;
       
+      const res = await axios.get(url);
       setGuestData(res.data);
     } catch (err) {
+
       setError(err.response?.data?.message || "Something went wrong. Please check your phone number.");
     } finally {
       setLoading(false);

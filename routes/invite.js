@@ -147,4 +147,37 @@ router.get("/lookup/:eventId/:phone", async (req, res) => {
   }
 });
 
+// PUBLIC UNIVERSAL LOOKUP (No eventId needed, searches all events)
+router.get("/lookup-universal", async (req, res) => {
+  try {
+    const phoneNumber = req.query.phone;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ message: "Phone number is required." });
+    }
+
+    // Search for guest by phone across ALL events
+    const guest = await Guest.findOne({ 
+      phone: { $regex: phoneNumber.trim(), $options: 'i' } 
+    }).sort({ createdAt: -1 });
+
+    if (!guest) {
+      return res.status(404).json({ message: "No invitation found for this phone number. 🔎" });
+    }
+
+    const event = await Event.findById(guest.eventId);
+
+    res.json({
+      guest,
+      eventInfo: {
+        name: event?.name,
+        qrCustomText: event?.qrCustomText || "Welcome to our wedding!"
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

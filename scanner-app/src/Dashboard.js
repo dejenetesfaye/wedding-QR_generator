@@ -38,11 +38,12 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/guest-access/${eventId}`;
+    const link = `${window.location.origin}/invitation`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
 
   const filteredGuests = guests.filter(g =>
     g.name.toLowerCase().includes(search.toLowerCase())
