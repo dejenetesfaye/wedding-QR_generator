@@ -20,6 +20,7 @@ export default function GuestTable({ guests }) {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Phone</th>
             <th>Status</th>
             <th>Checked In</th>
             <th>Action</th>
@@ -29,7 +30,9 @@ export default function GuestTable({ guests }) {
           {guests.map((g) => (
             <tr key={g.id}>
               <td style={{fontWeight: 500}}>{g.name}</td>
+              <td style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>{g.phone || "N/A"}</td>
               <td>
+
                 <span className={g.invited ? "badge badge-success" : "badge badge-danger"}>
                   {g.invited ? "Invited ✅" : "Not Invited ❌"}
                 </span>
