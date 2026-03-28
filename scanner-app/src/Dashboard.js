@@ -35,6 +35,15 @@ export default function Dashboard() {
   }, [fetchData]);
 
 
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const link = `${window.location.origin}/guest-access/${eventId}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const filteredGuests = guests.filter(g =>
     g.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -43,10 +52,13 @@ export default function Dashboard() {
     <div className="app-container">
       <div className="top-bar">
         <h1 className="title" style={{margin: 0}}>Admin Dashboard 📊</h1>
-        <div style={{display: 'flex', gap: '10px'}}>
-          <Link to="/events" className="btn btn-secondary">
+        <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
+          <Link to="/events" className="btn" style={{background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)'}}>
             Back ⬅️
           </Link>
+          <button onClick={handleCopyLink} className="btn" style={{background: copied ? 'var(--success)' : 'rgba(212, 175, 55, 0.1)', color: copied ? 'white' : 'var(--gold)', border: '1px solid var(--gold)'}}>
+            {copied ? "Copied! ✅" : "Copy Guest Link 🔗"}
+          </button>
           <Link to={`/generate/${eventId}`} className="btn btn-success">
             Gen QR 🖨️
           </Link>
@@ -55,6 +67,7 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
 
       <div className="stat-grid">
         <div className="stat-card">
