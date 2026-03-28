@@ -1,5 +1,6 @@
 import axios from "axios";
 import API from "./config";
+import { downloadGuestQR } from "./utils/qrHelper";
 
 export default function GuestTable({ guests }) {
 
@@ -38,14 +39,22 @@ export default function GuestTable({ guests }) {
                   {g.checkedIn ? "Yes ⚠️" : "No"}
                 </span>
               </td>
-              <td>
+              <td className="table-actions">
                 {!g.checkedIn ? (
-                  <button className="btn btn-primary" style={{padding: '0.4rem 0.8rem', fontSize: '0.875rem'}} onClick={() => handleManualCheckIn(g.id)}>
-                    Check In
+                  <button className="btn btn-primary" style={{padding: '0.4rem 0.6rem', fontSize: '0.8rem'}} onClick={() => handleManualCheckIn(g.id)}>
+                    Check In 🎟️
                   </button>
                 ) : (
                   <span style={{color: '#9ca3af', fontSize: '0.875rem', fontWeight: 500}}>Done</span>
                 )}
+                
+                <button 
+                  className="btn btn-secondary" 
+                  style={{padding: '0.4rem 0.6rem', fontSize: '0.8rem', background: '#3b82f6'}}
+                  onClick={() => downloadGuestQR(g)}
+                >
+                  Download QR 📥
+                </button>
               </td>
             </tr>
           ))}

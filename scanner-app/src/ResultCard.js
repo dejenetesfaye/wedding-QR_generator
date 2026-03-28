@@ -21,11 +21,17 @@ export default function ResultCard({ data, onCheckIn }) {
         </div>
       </div>
 
-      {!data.checkedIn && (
-        <button className="btn btn-success" onClick={onCheckIn} style={{width: '100%', fontSize: '1.1rem', padding: '1rem'}}>
-          Allow Entry ✅
-        </button>
-      )}
+      <div style={{marginTop: '1.5rem'}}>
+        {data.checkedIn ? (
+          <div className="checkin-success">
+            ENTRY ALLOWED ✅
+          </div>
+        ) : (
+          <button className="btn btn-success" onClick={onCheckIn} style={{width: '100%', fontSize: '1.1rem', padding: '1rem'}}>
+             Allow Entry ✅
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -45,10 +45,10 @@ const generatePDF = async (eventId) => {
       .stroke();
 
     const qrImage = await QRCode.toDataURL(qrData, {
-      width: qrSize,
-      margin: 4,
-      color: { dark: "#1E3A8A", light: "#FFFFFF" },
-      errorCorrectionLevel: "M"
+      width: qrSize * 4, // Higher sample density for better print quality
+      margin: 5,        // More white space around the QR
+      color: { dark: "#000000", light: "#FFFFFF" }, // Pure black for max contrast
+      errorCorrectionLevel: "Q" // Robust Quartile correction
     });
 
     const base64Data = qrImage.replace(/^data:image\/png;base64,/, "");

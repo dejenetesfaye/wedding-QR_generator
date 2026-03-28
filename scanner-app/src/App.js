@@ -23,7 +23,6 @@ function Home() {
 
   const handleScan = async (scannedText) => {
     // Debounce: Ignore scans that happen within 2 seconds of each other
-    // This stops flickering/screen noise from causing "Invalid QR"
     const now = Date.now();
     if (now - lastScan < 2000) return;
     setLastScan(now);
@@ -32,27 +31,30 @@ function Home() {
       console.log("Processing Scan:", scannedText);
       
       let id = "";
-      // 1. Check if it's the old "ID:uuid" format
       if (scannedText.includes("ID:")) {
         id = scannedText.split("ID:").pop().trim();
-      } 
-      // 2. Split by slash (legacy URL format)
-      else if (scannedText.includes("/")) {
+      } else if (scannedText.includes("/")) {
         id = scannedText.split('/').pop().trim();
-      }
-      // 3. Otherwise assume it's the new raw ID format
-      else {
+      } else {
         id = scannedText.trim();
       }
 
       console.log("Extracted ID:", id);
 
-      const res = await axios.get(
-        `${API}/api/invite/guest/${id}`
-      );
+      // 1. Fetch guest details
+      const res = await axios.get(`${API}/api/invite/guest/${id}`);
+      const scannedGuest = res.data;
 
+      // 2. AUTO-CHECK-IN if not already checked in
+      if (!scannedGuest.checkedIn) {
+        console.log("🎟️ Auto-Checking-In guest:", scannedGuest.name);
+        const checkInRes = await axios.post(`${API}/api/invite/${scannedGuest.id}/checkin`);
+        setGuest(checkInRes.data.guest); // Show updated guest with check-in timestamp
+      } else {
+        console.log("ℹ️ Guest already checked in:", scannedGuest.name);
+        setGuest(scannedGuest); // Still show the card to let scanner know they are valid but already in
+      }
 
-      setGuest(res.data);
     } catch (err) {
       console.error("Scan error:", err);
       setGuest({ error: "Invalid QR ❌ (Try holding still or scanning from further away)" });

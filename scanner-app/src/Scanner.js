@@ -72,22 +72,42 @@ export default function Scanner({ onScan }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    setScanning(true); // Show a busy state
+    setError(null);
+
     try {
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode("reader");
       }
 
       // If camera is running, stop it first to prevent collisions
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        await stopScanner();
+      if (scannerRef.current.isScanning) {
+        try {
+          await scannerRef.current.stop();
+        } catch (stopErr) {
+          console.warn("Minor stop error during file scan transition:", stopErr);
+        }
       }
 
+      console.log("📁 Processing file scan...");
       const decodedText = await scannerRef.current.scanFile(file, true);
-      console.log("✅ FILE QR DETECTED:", decodedText);
+      
+      console.log("✅ FILE QR DETECTED (Success):", decodedText);
+      
+      // Clear the reader div which now contains the image preview
+      try {
+        await scannerRef.current.clear();
+      } catch (clearErr) {
+        console.warn("Clear error:", clearErr);
+      }
+
       if (onScanRef.current) onScanRef.current(decodedText);
+      
+      setScanning(false);
     } catch (err) {
       console.error("File scan error:", err);
-      // alert("Could not find a QR code in that image.");
+      setError("Could not find a valid QR code in that image. Try a clearer photo.");
+      setScanning(false);
     }
   };
 
