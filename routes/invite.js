@@ -156,10 +156,14 @@ router.get("/lookup-universal", async (req, res) => {
       return res.status(400).json({ message: "Phone number is required." });
     }
 
+    // Escape special characters (like +) for regex
+    const escapedPhone = phoneNumber.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Search for guest by phone across ALL events
     const guest = await Guest.findOne({ 
-      phone: { $regex: phoneNumber.trim(), $options: 'i' } 
+      phone: { $regex: escapedPhone, $options: 'i' } 
     }).sort({ createdAt: -1 });
+
 
     if (!guest) {
       return res.status(404).json({ message: "No invitation found for this phone number. 🔎" });
