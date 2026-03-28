@@ -164,24 +164,36 @@ router.get("/lookup-universal", async (req, res) => {
       phone: { $regex: escapedPhone, $options: 'i' } 
     }).sort({ createdAt: -1 });
 
-
     if (!guest) {
       return res.status(404).json({ message: "No invitation found for this phone number. 🔎" });
     }
 
-    const event = await Event.findById(guest.eventId);
+    // Defensive check: Ensure eventId exists to avoid 500 crash
+    let eventInfo = { name: "Wedding Event", qrCustomText: "Welcome!" };
+    if (guest.eventId) {
+      try {
+        const event = await Event.findById(guest.eventId);
+        if (event) {
+          eventInfo = {
+            name: event.name,
+            qrCustomText: event.qrCustomText || "Welcome to our wedding!"
+          };
+        }
+      } catch (e) {
+        console.error("Event lookup error:", e);
+      }
+    }
 
     res.json({
       guest,
-      eventInfo: {
-        name: event?.name,
-        qrCustomText: event?.qrCustomText || "Welcome to our wedding!"
-      }
+      eventInfo
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Universal lookup crash:", err);
+    res.status(500).json({ message: "Internal Server Error: " + err.message });
   }
 });
+
 
 module.exports = router;
