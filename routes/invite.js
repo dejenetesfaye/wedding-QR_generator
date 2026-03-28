@@ -7,8 +7,80 @@ const { protect } = require("../middleware/auth");
 const { generatePDF } = require("../generatePDF");
 
 
+// PUBLIC UNIVERSAL LOOKUP (No eventId needed, searches all events)
+router.get("/lookup-universal", async (req, res) => {
+  try {
+    const phoneNumber = req.query.phone;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ message: "Phone number is required." });
+    }
+
+    const escapedPhone = phoneNumber.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const guest = await Guest.findOne({ 
+      phone: { $regex: escapedPhone, $options: 'i' } 
+    }).sort({ createdAt: -1 });
+
+    if (!guest) {
+      return res.status(404).json({ message: "No invitation found for this phone number. 🔎" });
+    }
+
+    let eventInfo = { name: "Wedding Event", qrCustomText: "Welcome!" };
+    if (guest.eventId) {
+      try {
+        const event = await Event.findById(guest.eventId);
+        if (event) {
+          eventInfo = {
+            name: event.name,
+            qrCustomText: event.qrCustomText || "Welcome to our wedding!"
+          };
+        }
+      } catch (e) {
+        console.error("Event lookup error:", e);
+      }
+    }
+
+    res.json({
+      guest,
+      eventInfo
+    });
+
+  } catch (err) {
+    console.error("Universal lookup crash:", err);
+    res.status(500).json({ message: "Internal Server Error: " + err.message });
+  }
+});
+
+// PUBLIC LOOKUP for guests (to download their own QR)
+router.get("/lookup/:eventId/:phone", async (req, res) => {
+  try {
+    const { eventId, phone } = req.params;
+    const guest = await Guest.findOne({ 
+      eventId, 
+      phone: { $regex: phone.trim(), $options: 'i' } 
+    });
+
+    if (!guest) {
+      return res.status(404).json({ message: "Guest not found with that phone number. 🔎" });
+    }
+
+    const event = await Event.findById(eventId);
+    res.json({
+      guest,
+      eventInfo: {
+        name: event?.name,
+        qrCustomText: event?.qrCustomText || "Welcome to our wedding!"
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET ALL GUESTS for a specific event
 router.get("/:eventId", protect, async (req, res) => {
+
   const guests = await Guest.find({ eventId: req.params.eventId }).sort({ name: 1 });
   res.json(guests);
 });
