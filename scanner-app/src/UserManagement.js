@@ -121,7 +121,13 @@ export default function UserManagement() {
           users.map((u) => (
             <div key={u._id} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h3 style={{ margin: "0 0 0.5rem 0", color: "#1f2937" }}>{u.name} <span style={{fontSize: "0.75rem", background: "#f3f4f6", padding: "2px 6px", borderRadius: "10px"}}>{u.role}</span></h3>
+                <h3 style={{ margin: "0 0 0.5rem 0", color: "var(--gold-light)" }}>
+                  {u.name} 
+                  <span style={{fontSize: "0.7rem", border: "1px solid var(--gold)", color: "var(--gold)", padding: "1px 6px", borderRadius: "4px", marginLeft: "10px", verticalAlign: "middle"}}>
+                    {u.role}
+                  </span>
+                </h3>
+
                 <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-muted)" }}>
                   Username: {u.username}
                 </p>
