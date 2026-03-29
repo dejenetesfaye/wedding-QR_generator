@@ -43,6 +43,8 @@ app.use("/api", (req, res) => {
 
 // Health check for Render
 app.get("/health", (req, res) => res.status(200).send("OK"));
+app.get("/api/deployment-test", (req, res) => res.json({ version: "v5-last9-fix" }));
+
 
 // Render/Vercel handles the static files separately, so we just focus on the API.
 app.get("/", (req, res) => res.send("Wedding API is running... 🚀💍"));
