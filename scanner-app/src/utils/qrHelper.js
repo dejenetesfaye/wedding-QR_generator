@@ -52,13 +52,18 @@ export const downloadGuestQR = async (guest, customText) => {
     ctx.fillRect((w - qrBoxW) / 2, (h - qrBoxH) / 2, qrBoxW, qrBoxH);
     ctx.shadowBlur = 0; // reset
 
-    // 4. Draw "Welcome" Header
+    // 4. Draw "Welcome" Header & Guest Name
     ctx.fillStyle = "#B8860B";
     ctx.font = "bold 80px 'Outfit', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Welcome", w / 2, 250);
+    ctx.fillText("Welcome", w / 2, 220);
 
-    // 5. Generate QR Code
+    // Stylish Guest Name (Italic & Golden)
+    ctx.fillStyle = "#D4AF37";
+    ctx.font = "italic bold 55px 'Outfit', sans-serif";
+    ctx.fillText(guest.name, w / 2, 290);
+
+    // 5. Generate QR Code (Pushed down slightly)
     const qrCanvas = document.createElement("canvas");
     await QRCode.toCanvas(qrCanvas, qrData, {
       width: 450,
@@ -66,16 +71,13 @@ export const downloadGuestQR = async (guest, customText) => {
       color: { dark: "#000000", light: "#ffffff" },
       errorCorrectionLevel: "Q"
     });
-    ctx.drawImage(qrCanvas, (w - 450) / 2, 330);
+    ctx.drawImage(qrCanvas, (w - 450) / 2, 360);
 
     // 6. Draw Footer Text
+    ctx.fillStyle = "#B8860B";
     ctx.font = "bold 44px 'Outfit', sans-serif";
-    ctx.fillText("Show me at the gate", w / 2, 850);
+    ctx.fillText("Show me at the gate", w / 2, 880);
 
-    // 7. Draw Guest Name (Subtle)
-    ctx.font = "30px 'Outfit', sans-serif";
-    ctx.fillStyle = "#6B7280";
-    ctx.fillText(guest.name.toUpperCase(), w / 2, 920);
 
     // 8. LUXURY BORDER
     ctx.strokeStyle = "white";

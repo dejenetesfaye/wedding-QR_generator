@@ -68,13 +68,19 @@ const generatePDF = async (eventId) => {
        .fillColor("#FFFFFF")
        .fill();
 
-    // 3. Header "Welcome"
+    // 3. Header "Welcome" & Guest Name
     doc.fillColor("#B8860B")
        .fontSize(16)
        .font("Helvetica-Bold")
-       .text("Welcome", x, y + 35, { width: cardW, align: "center" });
+       .text("Welcome", x, y + 25, { width: cardW, align: "center" });
 
-    // 4. QR Code
+    // Stylish Guest Name (Italic)
+    doc.fillColor("#D4AF37")
+       .fontSize(10)
+       .font("Helvetica-BoldOblique")
+       .text(guest.name, x, y + 45, { width: cardW, align: "center" });
+
+    // 4. QR Code (Pushed down slightly)
     const qrImage = await QRCode.toDataURL(qrData, {
       width: 400,
       margin: 1,
@@ -84,18 +90,13 @@ const generatePDF = async (eventId) => {
 
     const base64Data = qrImage.replace(/^data:image\/png;base64,/, "");
     const buffer = Buffer.from(base64Data, "base64");
-    doc.image(buffer, x + 35, y + 65, { width: 90 });
+    doc.image(buffer, x + 35, y + 75, { width: 90 });
 
     // 5. Footer "Show me at the gate"
     doc.fillColor("#B8860B")
        .fontSize(10)
-       .text("Show me at the gate", x, y + 165, { width: cardW, align: "center" });
+       .text("Show me at the gate", x, y + 175, { width: cardW, align: "center" });
 
-    // 6. Guest Name
-    doc.fillColor("#6B7280")
-       .fontSize(8)
-       .font("Helvetica")
-       .text(guest.name.toUpperCase(), x, y + 185, { width: cardW, align: "center" });
 
     // 7. Outer Luxury Border
     doc.roundedRect(x, y, cardW, cardH, 12)
