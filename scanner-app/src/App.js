@@ -48,8 +48,9 @@ function Home() {
         const checkInRes = await axios.post(`${API}/api/invite/${scannedGuest.id}/checkin`);
         setGuest(checkInRes.data.guest);
       } else {
-        setGuest(scannedGuest);
+        setGuest({ ...scannedGuest, alreadyCheckedIn: true });
       }
+
 
     } catch (err) {
       console.error("Scan error:", err);

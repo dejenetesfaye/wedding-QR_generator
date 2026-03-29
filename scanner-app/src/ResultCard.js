@@ -3,21 +3,26 @@ export default function ResultCard({ data }) {
 
   return (
     <div className="minimal-scanner-result" style={{
-      background: data.error ? 'rgba(239, 68, 68, 0.95)' : 'rgba(15, 23, 42, 0.98)',
+      background: (data.error || data.alreadyCheckedIn) ? 'rgba(239, 68, 68, 0.95)' : 'rgba(15, 23, 42, 0.98)',
       backdropFilter: 'blur(10px)'
     }}>
-      <h1 style={{fontSize: '3rem', marginBottom: '1rem'}}>{data.error ? '❌' : '✅'}</h1>
+      <h1 style={{fontSize: '3rem', marginBottom: '1rem'}}>{(data.error || data.alreadyCheckedIn) ? '❌' : '✅'}</h1>
       <h2 style={{ fontSize: '2.5rem', margin: '0 0 1rem 0' }}>
         {data.error ? "INVALID QR" : data.name}
       </h2>
 
       {data.error ? (
         <p style={{ fontSize: '1.2rem'}}>{data.error}</p>
+      ) : data.alreadyCheckedIn ? (
+        <div className="checkin-success" style={{background: 'rgba(255,255,255,0.1)', border: '2px solid white', color: 'white'}}>
+           ALREADY CHECKED IN <br/> ⚠️ DENY ENTRY ⚠️
+        </div>
       ) : (
         <div className="checkin-success">
           ENTRY ALLOWED
         </div>
       )}
+
       
       <button 
         className="btn btn-primary" 
