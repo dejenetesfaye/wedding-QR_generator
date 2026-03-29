@@ -94,11 +94,9 @@ export default function GuestPortal() {
                   alt="Wedding Invitation" 
                   style={{ width: "100%", borderRadius: "12px", boxShadow: "0 10px 30px rgba(0,0,0,0.5)", border: '2px solid var(--gold)' }} 
                 />
-                <p style={{ color: 'var(--gold)', marginTop: '1rem', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                  Touch and hold image to save or take a screenshot 📸
-                </p>
               </div>
             )}
+
           </div>
         )}
       </div>
