@@ -137,7 +137,8 @@ export default function EventSelection() {
           events.map((evt) => (
             <div key={evt._id} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h3 style={{ margin: "0 0 0.5rem 0", color: "#1f2937" }}>{evt.name}</h3>
+                <h3 style={{ margin: "0 0 0.5rem 0", color: "var(--gold-light)" }}>{evt.name}</h3>
+
                 <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-muted)" }}>
                   {new Date(evt.date).toLocaleDateString()}
                 </p>

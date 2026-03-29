@@ -81,14 +81,8 @@ export default function GuestPortal() {
             >
               Download My Ticket 📥
             </button>
-            <button 
-              onClick={() => setGuestData(null)} 
-              className="btn" 
-              style={{ marginTop: "1.5rem", background: "transparent", color: "var(--text-muted)", border: "1px solid var(--glass-border)" }}
-            >
-              Wrong number? Try again
-            </button>
           </div>
+
         )}
       </div>
     </div>
