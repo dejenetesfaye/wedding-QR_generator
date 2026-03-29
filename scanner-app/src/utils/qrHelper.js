@@ -10,8 +10,8 @@ export const downloadGuestQR = async (guest, customText) => {
 
   try {
     // 1. Generate the QR Data
-    const designCredit = "Designed by Malda Decor (+251 91183 4473)";
-    const qrData = `${customText || "Welcome to our wedding!"} / ${designCredit} ID:${guest.id}`;
+    const qrData = `${customText?.trim() || "Welcome"} #ID:${guest.id}`;
+
 
     // 2. Create a canvas
     const canvas = document.createElement("canvas");

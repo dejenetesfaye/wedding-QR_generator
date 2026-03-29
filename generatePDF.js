@@ -39,8 +39,8 @@ const generatePDF = async (eventId) => {
   let count = 0;
 
   for (const guest of guests) {
-    const designCredit = "Designed by Malda Decor (+251 91183 4473)";
-    const qrData = `${qrCustomText} / ${designCredit} ID:${guest.id}`;
+    const qrData = `${qrCustomText.trim()} #ID:${guest.id}`;
+
 
     // 1. Draw Golden Background (Sunburst effect is tricky in PDFkit without many lines, so we'll use a soft gold fill)
     doc.save();

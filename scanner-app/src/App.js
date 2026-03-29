@@ -30,13 +30,16 @@ function Home() {
 
     try {
       let id = "";
-      if (scannedText.includes("ID:")) {
+      if (scannedText.includes("#ID:")) {
+        id = scannedText.split("#ID:").pop().trim();
+      } else if (scannedText.includes("ID:")) {
         id = scannedText.split("ID:").pop().trim();
       } else if (scannedText.includes("/")) {
         id = scannedText.split('/').pop().trim();
       } else {
         id = scannedText.trim();
       }
+
 
       const res = await axios.get(`${API}/api/invite/guest/${id}`);
       const scannedGuest = res.data;
