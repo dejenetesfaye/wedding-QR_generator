@@ -44,6 +44,12 @@ function Home() {
       const res = await axios.get(`${API}/api/invite/guest/${id}`);
       const scannedGuest = res.data;
 
+      // SECURITY FIX: Ensure the guest belongs to THIS wedding
+      if (scannedGuest.eventId !== eventId) {
+        setGuest({ error: "INVALID FOR THIS WEDDING ❌", name: scannedGuest.name });
+        return;
+      }
+
       if (!scannedGuest.checkedIn) {
         const checkInRes = await axios.post(`${API}/api/invite/${scannedGuest.id}/checkin`);
         setGuest(checkInRes.data.guest);
@@ -54,7 +60,7 @@ function Home() {
 
     } catch (err) {
       console.error("Scan error:", err);
-      setGuest({ error: "Invalid QR ❌" });
+      setGuest({ error: "INVALID QR CODE ❌" });
     }
   };
 
