@@ -21,10 +21,10 @@ export default function Dashboard() {
       const statRes = await axios.get(`${API}/api/invite/${eventId}/stats`);
       setStats(statRes.data);
 
-      // Safely fetch event data from the manager's events list
+      // Safely fetch event data from the manager's authorized events list
       try {
-        const eventsRes = await axios.get(`${API}/api/events`);
-        const currentEvent = eventsRes.data.find(e => e._id === eventId);
+        const evtRes = await axios.get(`${API}/api/events`);
+        const currentEvent = evtRes.data.find(e => e._id === eventId);
         if (currentEvent) {
           setEventData(currentEvent);
         }
@@ -48,12 +48,12 @@ export default function Dashboard() {
 
   const [copied, setCopied] = useState(false);
 
+  // We explicitly evaluate the link to show it in the UI and copy it
+  const baseUrl = window.location.origin;
+  const uniqueLink = eventData?.slug ? `${baseUrl}/${eventData.slug}` : `${baseUrl}/invitation`;
+
   const handleCopyLink = () => {
-    // Determine the correct link format (preferring the unique slug)
-    const baseUrl = window.location.origin;
-    const link = eventData?.slug ? `${baseUrl}/${eventData.slug}` : `${baseUrl}/invitation`;
-    
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(uniqueLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -66,8 +66,17 @@ export default function Dashboard() {
 
   return (
     <div className="app-container">
-      <div className="top-bar">
+      <div className="top-bar" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
         <h1 className="title" style={{margin: 0}}>Admin Dashboard 📊</h1>
+        
+        {/* URL Display Box */}
+        {eventData && (
+           <div style={{ display: 'flex', gap: '5px', alignItems: 'center', background: "rgba(0,0,0,0.3)", padding: "0.5rem 1rem", borderRadius: "8px", border: "1px solid var(--glass-border)", width: '100%', maxWidth: '500px' }}>
+             <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Invite Link:</span>
+             <input disabled value={uniqueLink} style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--gold-light)', outline: 'none', fontSize: '0.875rem' }} />
+           </div>
+        )}
+
         <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
           <Link to="/events" className="btn" style={{background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)'}}>
             Back ⬅️
