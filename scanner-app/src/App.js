@@ -102,8 +102,12 @@ function App() {
         <Route path="/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
         <Route path="/dashboard/:eventId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/generate/:eventId" element={<ProtectedRoute><GenerateQR /></ProtectedRoute>} />
+
+        {/* Unique Wedding Link Route (Catch-all for slugs) */}
+        <Route path="/:slug" element={<GuestPortal />} />
       </Routes>
     </AuthProvider>
+
   );
 }
 

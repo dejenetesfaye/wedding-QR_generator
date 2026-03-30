@@ -10,6 +10,7 @@ export default function EventSelection() {
   const [showForm, setShowForm] = useState(false);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [eventSlug, setEventSlug] = useState("");
   const [qrCustomText, setQrCustomText] = useState("Welcome to our wedding!");
   const [creating, setCreating] = useState(false);
   const { user, logout } = useContext(AuthContext);
@@ -35,19 +36,24 @@ export default function EventSelection() {
     try {
       await axios.post(`${API}/api/events`, {
         name: eventName,
+        slug: eventSlug,
         date: eventDate,
         qrCustomText: qrCustomText,
         description: ""
       });
       setEventName("");
+      setEventSlug("");
       setEventDate("");
       setQrCustomText("Welcome to our wedding!");
       setShowForm(false);
       fetchEvents(); // Refresh list
     } catch (err) {
-
       console.error("Error creating event", err);
-      alert("Failed to create wedding.");
+      if (err.response && err.response.status === 400) {
+        alert(err.response.data.message);
+      } else {
+        alert("Failed to create wedding.");
+      }
     } finally {
       setCreating(false);
     }
@@ -99,6 +105,20 @@ export default function EventSelection() {
                 value={eventName}
                 onChange={e => setEventName(e.target.value)}
               />
+            </div>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Unique Link (Slug)</label>
+              <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: "8px", border: "1px solid var(--glass-border)", padding: "0 10px" }}>
+                <span style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>/</span>
+                <input 
+                  required 
+                  className="search-input" 
+                  style={{ border: "none", background: "transparent", padding: "1.2rem 0.5rem", width: "100%", outline: "none" }}
+                  placeholder="john-jane" 
+                  value={eventSlug}
+                  onChange={e => setEventSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
+                />
+              </div>
             </div>
             <div style={{ flex: 1, minWidth: "150px" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Date</label>

@@ -5,12 +5,26 @@ import API from "./config";
 import { downloadGuestQR, generateLuxuryQRCanvas } from "./utils/qrHelper";
 
 export default function GuestPortal() {
-  const { eventId } = useParams();
+  const { eventId, slug } = useParams();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [qrMatches, setQrMatches] = useState([]);
   const [loadingAll, setLoadingAll] = useState(false);
   const [error, setError] = useState("");
+  const [eventDetails, setEventDetails] = useState(null);
+  const [pageError, setPageError] = useState("");
+
+  // Fetch event details on load if accessing via unique link (slug)
+  useEffect(() => {
+    if (slug) {
+      axios.get(`${API}/api/events/slug/${slug}`)
+        .then(res => setEventDetails(res.data))
+        .catch(err => {
+          console.error("Event lookup failed", err);
+          setPageError("This wedding invitation link is invalid or has been removed. ❌");
+        });
+    }
+  }, [slug]);
 
   const handleLookup = async (e) => {
     e.preventDefault();
@@ -18,16 +32,15 @@ export default function GuestPortal() {
     setError("");
     setQrMatches([]);
 
-
     try {
-      const url = eventId 
-        ? `${API}/api/invite/lookup/${eventId}/${phone}` 
+      const activeEventId = eventDetails?._id || eventId;
+      
+      const url = activeEventId 
+        ? `${API}/api/invite/lookup/${activeEventId}/${phone}` 
         : `${API}/api/invite/lookup-universal?phone=${encodeURIComponent(phone)}`;
       
       const res = await axios.get(url);
       const foundMatches = Array.isArray(res.data) ? res.data : [res.data];
-
-      // Generate all QR images immediately
 
       setLoadingAll(true);
       const generated = await Promise.all(foundMatches.map(async (m) => {
@@ -55,9 +68,15 @@ export default function GuestPortal() {
   return (
     <div className="app-container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="card" style={{ width: "100%", maxWidth: "500px", textAlign: "center", padding: "2rem 1.5rem" }}>
-        <h1 className="title" style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Welcome 🥂</h1>
+        <h1 className="title" style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+          {eventDetails ? `Welcome to ${eventDetails.name} 🥂` : "Welcome 🥂"}
+        </h1>
         
-        {qrMatches.length === 0 ? (
+        {pageError ? (
+          <div style={{ padding: "2rem 0" }}>
+            <p style={{ color: "var(--danger)", marginBottom: "2rem", fontSize: "1.2rem" }}>{pageError}</p>
+          </div>
+        ) : qrMatches.length === 0 ? (
           <>
             <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>
               Enter your phone number to retrieve your personalized wedding invitation.

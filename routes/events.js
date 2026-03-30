@@ -18,16 +18,57 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
+// @desc    Get public event details by unique slug
+// @route   GET /api/events/slug/:slug
+// @access  Public
+router.get("/slug/:slug", async (req, res) => {
+  try {
+    const event = await Event.findOne({ slug: { $regex: new RegExp(`^${req.params.slug}$`, "i") } });
+    if (!event) {
+      return res.status(404).json({ message: "Wedding not found" });
+    }
+    // Only return safe public data needed for the portal
+    res.json({
+      _id: event._id,
+      name: event.name,
+      qrCustomText: event.qrCustomText
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+
+// @desc    Get event by ID
+// @route   GET /api/events/:id
+// @access  Private
+router.get("/:id", protect, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    // Only allow Admin or the Event Owner to view the full private event details
+    if (req.user.role !== "ADMIN" && event.managerId.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized to view this event" });
+    }
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
 // @desc    Create a new event
 // @route   POST /api/events
 // @access  Private
 router.post("/", protect, async (req, res) => {
   try {
-    const { name, date, description, qrCustomText } = req.body;
+    const { name, date, description, qrCustomText, slug } = req.body;
     
     // For local dev, we allow Managers to create events they own.
     const event = new Event({
       name,
+      slug,
       date,
       description,
       qrCustomText: qrCustomText || "Welcome to our wedding!",
@@ -38,6 +79,9 @@ router.post("/", protect, async (req, res) => {
     const createdEvent = await event.save();
     res.status(201).json(createdEvent);
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.slug) {
+      return res.status(400).json({ message: "This Unique Link Name is already taken. Please choose another one." });
+    }
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });

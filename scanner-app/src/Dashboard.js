@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [guests, setGuests] = useState([]);
   const [stats, setStats] = useState({ total: 0, checkedIn: 0, remaining: 0 });
   const [search, setSearch] = useState("");
+  const [eventData, setEventData] = useState(null);
  
   const fetchData = useCallback(async () => {
     try {
@@ -19,6 +20,9 @@ export default function Dashboard() {
 
       const statRes = await axios.get(`${API}/api/invite/${eventId}/stats`);
       setStats(statRes.data);
+
+      const evtRes = await axios.get(`${API}/api/events/${eventId}`);
+      setEventData(evtRes.data);
 
     } catch (e) {
       console.error(e);
@@ -38,7 +42,10 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/invitation`;
+    // Determine the correct link format (preferring the unique slug)
+    const baseUrl = window.location.origin;
+    const link = eventData?.slug ? `${baseUrl}/${eventData.slug}` : `${baseUrl}/invitation`;
+    
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -46,6 +53,7 @@ export default function Dashboard() {
 
 
   const filteredGuests = guests.filter(g =>
+
     g.name.toLowerCase().includes(search.toLowerCase())
   );
 
