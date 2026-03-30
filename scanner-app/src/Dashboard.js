@@ -21,9 +21,16 @@ export default function Dashboard() {
       const statRes = await axios.get(`${API}/api/invite/${eventId}/stats`);
       setStats(statRes.data);
 
-      const evtRes = await axios.get(`${API}/api/events/${eventId}`);
-      setEventData(evtRes.data);
-
+      // Safely fetch event data from the manager's events list
+      try {
+        const eventsRes = await axios.get(`${API}/api/events`);
+        const currentEvent = eventsRes.data.find(e => e._id === eventId);
+        if (currentEvent) {
+          setEventData(currentEvent);
+        }
+      } catch (evtErr) {
+        console.error("Failed to load event details for dashboard link:", evtErr);
+      }
     } catch (e) {
       console.error(e);
     }
