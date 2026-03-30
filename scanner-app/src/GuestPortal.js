@@ -16,8 +16,8 @@ export default function GuestPortal() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setMatches([]);
     setQrMatches([]);
+
 
     try {
       const url = eventId 
@@ -26,9 +26,9 @@ export default function GuestPortal() {
       
       const res = await axios.get(url);
       const foundMatches = Array.isArray(res.data) ? res.data : [res.data];
-      setMatches(foundMatches);
 
       // Generate all QR images immediately
+
       setLoadingAll(true);
       const generated = await Promise.all(foundMatches.map(async (m) => {
         const canvas = await generateLuxuryQRCanvas(m.guest, m.eventInfo.qrCustomText);
