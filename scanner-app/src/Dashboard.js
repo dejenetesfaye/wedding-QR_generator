@@ -73,12 +73,6 @@ export default function Dashboard() {
         {eventData && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", border: "1px solid var(--glass-border)", width: '100%', maxWidth: '500px', textAlign: 'left' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', width: '100px' }}>Couple:</span>
-              <span style={{ color: 'white', fontWeight: 500, fontSize: '0.9rem' }}>
-                {eventData.groomName || '?'} &amp; {eventData.brideName || '?'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', width: '100px' }}>Invite Link:</span>
               <input disabled value={uniqueLink} style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--gold-light)', outline: 'none', fontSize: '0.875rem', padding: 0 }} />
             </div>
