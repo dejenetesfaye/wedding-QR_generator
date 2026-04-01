@@ -79,9 +79,9 @@ export default function GuestPortal() {
         ) : qrMatches.length === 0 ? (
           <>
             <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>
-              {eventDetails && eventDetails.groomName && eventDetails.brideName 
-                ? `You are warmly invited to celebrate the wedding of ${eventDetails.groomName} & ${eventDetails.brideName}. Enter your phone number below.`
-                : "Enter your phone number to retrieve your personalized wedding invitation."}
+              {eventDetails && (eventDetails.groomName || eventDetails.brideName)
+                ? `You are warmly invited to celebrate the wedding of ${eventDetails.groomName || ''} & ${eventDetails.brideName || ''}. Enter your phone number below.`
+                : "You are warmly invited to celebrate the wedding. Enter your phone number below."}
             </p>
             <form onSubmit={handleLookup}>
               <input 
