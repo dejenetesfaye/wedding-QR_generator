@@ -69,19 +69,32 @@ export default function Dashboard() {
       <div className="top-bar" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
         <h1 className="title" style={{margin: 0}}>Admin Dashboard 📊</h1>
         
-        {/* URL Display Box */}
+        {/* Verification Display Box for Event Setup Info */}
         {eventData && (
-           <div style={{ display: 'flex', gap: '5px', alignItems: 'center', background: "rgba(0,0,0,0.3)", padding: "0.5rem 1rem", borderRadius: "8px", border: "1px solid var(--glass-border)", width: '100%', maxWidth: '500px' }}>
-             <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Invite Link:</span>
-             <input disabled value={uniqueLink} style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--gold-light)', outline: 'none', fontSize: '0.875rem' }} />
-           </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", border: "1px solid var(--glass-border)", width: '100%', maxWidth: '500px', textAlign: 'left' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', width: '100px' }}>Couple:</span>
+              <span style={{ color: 'white', fontWeight: 500, fontSize: '0.9rem' }}>
+                {eventData.groomName || '?'} &amp; {eventData.brideName || '?'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', width: '100px' }}>Invite Link:</span>
+              <input disabled value={uniqueLink} style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--gold-light)', outline: 'none', fontSize: '0.875rem', padding: 0 }} />
+            </div>
+          </div>
         )}
 
         <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
           <Link to="/events" className="btn" style={{background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)'}}>
             Back ⬅️
           </Link>
-          <button onClick={handleCopyLink} className="btn" style={{background: copied ? 'var(--success)' : 'rgba(212, 175, 55, 0.1)', color: copied ? 'white' : 'var(--gold)', border: '1px solid var(--gold)'}}>
+          <button 
+            disabled={!eventData}
+            onClick={handleCopyLink} 
+            className="btn" 
+            style={{background: copied ? 'var(--success)' : 'rgba(212, 175, 55, 0.1)', color: copied ? 'white' : 'var(--gold)', border: '1px solid var(--gold)', opacity: !eventData ? 0.5 : 1}}
+          >
             {copied ? "Copied! ✅" : "Copy Guest Link 🔗"}
           </button>
           <Link to={`/generate/${eventId}`} className="btn btn-success">
