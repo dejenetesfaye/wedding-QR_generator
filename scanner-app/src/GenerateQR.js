@@ -3,73 +3,65 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import API from "./config";
 
-function parseCSVInput(raw) {
-
-  const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
-  const guests = [];
-  const errors = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Skip header row if it starts with "name"
-    if (i === 0 && line.toLowerCase().startsWith("name")) continue;
-
-    const parts = line.split(",");
-    const name = (parts[0] || "").trim();
-    const phone = (parts[1] || "").trim();
-
-    if (!name) {
-      errors.push(`Line ${i + 1}: Missing name`);
-      continue;
-    }
-
-    guests.push({ name, phone });
-  }
-
-  return { guests, errors };
-}
-
-const PLACEHOLDER = `Abebe Kebede,0911111111
-Selam Tesfaye,0922222222
-John Doe,0933333333`;
-
 export default function GenerateQR() {
   const { eventId } = useParams();
-  const [rawText, setRawText] = useState("");
-  const [preview, setPreview] = useState(null);
-  const [parseErrors, setParseErrors] = useState([]);
+  
+  // State for dynamic table rows
+  const [guests, setGuests] = useState([{ name: "", phone: "" }, { name: "", phone: "" }, { name: "", phone: "" }]);
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [canDownload, setCanDownload] = useState(true);
 
-  const handleParse = () => {
-    const { guests, errors } = parseCSVInput(rawText);
-    setPreview(guests);
-    setParseErrors(errors);
+  // Handle changing table inputs
+  const handleInputChange = (index, field, value) => {
+    const updatedGuests = [...guests];
+    updatedGuests[index][field] = value;
+    setGuests(updatedGuests);
     setMessage("");
     setError("");
   };
 
+  const handleAddRow = () => {
+    setGuests([...guests, { name: "", phone: "" }]);
+  };
+
+  const handleAddFiveRows = () => {
+    const newRows = Array(5).fill({ name: "", phone: "" });
+    setGuests([...guests, ...newRows]);
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedGuests = guests.filter((_, i) => i !== index);
+    setGuests(updatedGuests);
+  };
+
   const handleGenerate = async () => {
-    if (!preview || preview.length === 0) return;
+    // Filter out rows with empty names before submitting
+    const validGuests = guests.filter(g => g.name.trim() !== "");
+    
+    if (validGuests.length === 0) {
+      setError("Please add at least one guest name.");
+      return;
+    }
 
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
-      console.log(`Sending ${preview.length} guests to backend for Event ${eventId}...`);
+      console.log(`Sending ${validGuests.length} guests to backend for Event ${eventId}...`);
       const res = await axios.post(`${API}/api/invite/generate`, {
         eventId,
-        guests: preview,
+        guests: validGuests,
       });
 
       console.log("Generate response:", res.data);
       setMessage(res.data.message);
-      setPreview(null);
-      setRawText("");
+      
+      // Optionally keep or clear valid guests. We'll clear the table to indicate success.
+      setGuests([{ name: "", phone: "" }, { name: "", phone: "" }]);
       setCanDownload(true);
     } catch (err) {
       console.error("Generate error:", err);
@@ -87,8 +79,6 @@ export default function GenerateQR() {
           <a
             href={canDownload ? `${API}/api/download/qrcodes.pdf` : "#"}
             className={`btn btn-success ${!canDownload ? "disabled" : ""}`}
-
-
             style={{ 
               opacity: canDownload ? 1 : 0.5, 
               pointerEvents: canDownload ? "auto" : "none",
@@ -105,90 +95,79 @@ export default function GenerateQR() {
       </div>
 
       <div className="card">
-        <p style={{ color: "var(--text-muted)", marginBottom: "0.5rem" }}>
-          Paste guest names and phone numbers, one per line, in <code>name,phone</code> format:
+        <p style={{ color: "var(--text-muted)", marginBottom: "1.5rem" }}>
+          Enter guest names and phone numbers below to generate their unique invitations. Blank rows will be ignored.
         </p>
 
-        <div style={{
-          background: "#f3f4f6",
-          border: "1px solid #d1d5db",
-          borderRadius: "8px",
-          padding: "0.75rem 1rem",
-          marginBottom: "1rem",
-          fontSize: "0.875rem",
-          fontFamily: "monospace",
-          color: "#374151"
-        }}>
-          Abebe Kebede,0911111111<br />
-          Selam Tesfaye,0922222222<br />
-          John Doe,0933333333
+        <div className="table-container" style={{ marginBottom: "1.5rem", overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={{ width: "50px", textAlign: "center" }}>#</th>
+                <th>Guest Name *</th>
+                <th>Phone Number</th>
+                <th style={{ width: "80px", textAlign: "center" }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {guests.map((g, i) => (
+                <tr key={i}>
+                  <td style={{ textAlign: "center", color: "var(--text-muted)" }}>{i + 1}</td>
+                  <td>
+                    <input 
+                      type="text"
+                      className="search-input"
+                      placeholder="e.g. John Doe"
+                      value={g.name}
+                      onChange={(e) => handleInputChange(i, "name", e.target.value)}
+                      style={{ width: "100%", padding: "0.5rem" }}
+                    />
+                  </td>
+                  <td>
+                    <input 
+                      type="tel"
+                      className="search-input"
+                      placeholder="e.g. 0911223344"
+                      value={g.phone}
+                      onChange={(e) => handleInputChange(i, "phone", e.target.value)}
+                      style={{ width: "100%", padding: "0.5rem" }}
+                    />
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <button 
+                      onClick={() => handleRemoveRow(i)}
+                      className="btn"
+                      style={{ background: "#fee2e2", color: "#991b1b", padding: "0.5rem", fontSize: "0.8rem" }}
+                      title="Remove Row"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <textarea
-          rows={10}
-          className="search-input"
-          value={rawText}
-          onChange={e => { setRawText(e.target.value); setPreview(null); }}
-          placeholder={PLACEHOLDER}
-          style={{
-            marginBottom: "1rem",
-            fontFamily: "monospace",
-            fontSize: "0.95rem",
-            resize: "vertical",
-            lineHeight: "1.7"
-          }}
-        />
-
-        {parseErrors.length > 0 && (
-          <div style={{ marginBottom: "1rem", color: "var(--danger)", fontSize: "0.875rem" }}>
-            {parseErrors.map((e, i) => <div key={i}>⚠️ {e}</div>)}
-          </div>
-        )}
+        <div style={{ display: "flex", gap: "10px", marginBottom: "2rem" }}>
+          <button onClick={handleAddRow} className="btn" style={{ background: "rgba(255,255,255,0.05)", border: "1px dashed var(--gold)" }}>
+            ➕ Add Row
+          </button>
+          <button onClick={handleAddFiveRows} className="btn" style={{ background: "rgba(255,255,255,0.05)", border: "1px dashed #10b981", color: "#10b981" }}>
+            ➕ Add 5 Rows
+          </button>
+        </div>
 
         <button
-          className="btn btn-primary"
-          onClick={handleParse}
-          disabled={!rawText.trim()}
-          style={{ marginRight: "1rem", padding: "0.75rem 1.5rem" }}
+          className="btn btn-success"
+          onClick={handleGenerate}
+          disabled={loading || guests.filter(g => g.name.trim() !== "").length === 0}
+          style={{ padding: "1rem 2rem", fontSize: "1rem", width: "100%" }}
         >
-          Preview Guests 👁️
+          {loading
+            ? "Generating PDF... ⏳"
+            : `Generate QR Codes & Update PDF`}
         </button>
-
-        {preview && preview.length > 0 && (
-          <>
-            <div className="table-container" style={{ marginTop: "2rem", marginBottom: "1.5rem" }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {preview.map((g, i) => (
-                    <tr key={i}>
-                      <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
-                      <td style={{ fontWeight: 500 }}>{g.name}</td>
-                      <td style={{ color: "var(--text-muted)" }}>{g.phone || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <button
-              className="btn btn-success"
-              onClick={handleGenerate}
-              disabled={loading}
-              style={{ padding: "1rem 2rem", fontSize: "1rem", width: "100%" }}
-            >
-              {loading
-                ? "Generating PDF... ⏳"
-                : `Generate ${preview.length} QR Code${preview.length > 1 ? "s" : ""} & Update PDF`}
-            </button>
-          </>
-        )}
 
         {message && (
           <div style={{ marginTop: "1.5rem", padding: "1rem", background: "#d1fae5", color: "#065f46", borderRadius: "8px", fontWeight: 500 }}>

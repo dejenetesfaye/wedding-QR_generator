@@ -69,7 +69,7 @@ export default function GuestPortal() {
     <div className="app-container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="card" style={{ width: "100%", maxWidth: "500px", textAlign: "center", padding: "2rem 1.5rem" }}>
         <h1 className="title" style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-          {eventDetails ? `Welcome to ${eventDetails.name} 🥂` : "Welcome 🥂"}
+          Welcome 🥂
         </h1>
         
         {pageError ? (
@@ -79,7 +79,9 @@ export default function GuestPortal() {
         ) : qrMatches.length === 0 ? (
           <>
             <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>
-              Enter your phone number to retrieve your personalized wedding invitation.
+              {eventDetails && eventDetails.groomName && eventDetails.brideName 
+                ? `You are warmly invited to celebrate the wedding of ${eventDetails.groomName} & ${eventDetails.brideName}. Enter your phone number below.`
+                : "Enter your phone number to retrieve your personalized wedding invitation."}
             </p>
             <form onSubmit={handleLookup}>
               <input 
@@ -113,8 +115,7 @@ export default function GuestPortal() {
             <div style={{ display: "grid", gap: "2rem", maxHeight: "70vh", overflowY: "auto", padding: "10px" }}>
               {qrMatches.map((match, idx) => (
                 <div key={idx} className="qr-card-container" style={{ textAlign: "center" }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>{match.eventInfo.name}</span>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '10px' }}>
                     <button 
                       onClick={() => handleDownload(match)} 
                       className="btn btn-primary" 

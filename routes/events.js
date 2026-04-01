@@ -31,7 +31,9 @@ router.get("/slug/:slug", async (req, res) => {
     res.json({
       _id: event._id,
       name: event.name,
-      qrCustomText: event.qrCustomText
+      qrCustomText: event.qrCustomText,
+      groomName: event.groomName,
+      brideName: event.brideName
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -63,12 +65,14 @@ router.get("/:id", protect, async (req, res) => {
 // @access  Private
 router.post("/", protect, async (req, res) => {
   try {
-    const { name, date, description, qrCustomText, slug } = req.body;
+    const { name, date, description, qrCustomText, slug, groomName, brideName } = req.body;
     
     // For local dev, we allow Managers to create events they own.
     const event = new Event({
       name,
       slug,
+      groomName,
+      brideName,
       date,
       description,
       qrCustomText: qrCustomText || "Welcome to our wedding!",

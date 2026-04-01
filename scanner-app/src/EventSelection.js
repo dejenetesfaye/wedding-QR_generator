@@ -11,6 +11,8 @@ export default function EventSelection() {
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventSlug, setEventSlug] = useState("");
+  const [groomName, setGroomName] = useState("");
+  const [brideName, setBrideName] = useState("");
   const [qrCustomText, setQrCustomText] = useState("Welcome to our wedding!");
   const [creating, setCreating] = useState(false);
   const { user, logout } = useContext(AuthContext);
@@ -37,12 +39,16 @@ export default function EventSelection() {
       await axios.post(`${API}/api/events`, {
         name: eventName,
         slug: eventSlug,
+        groomName,
+        brideName,
         date: eventDate,
         qrCustomText: qrCustomText,
         description: ""
       });
       setEventName("");
       setEventSlug("");
+      setGroomName("");
+      setBrideName("");
       setEventDate("");
       setQrCustomText("Welcome to our wedding!");
       setShowForm(false);
@@ -130,6 +136,30 @@ export default function EventSelection() {
                 onChange={e => setEventDate(e.target.value)}
               />
             </div>
+            
+            {/* New Row for Groom and Bride */}
+            <div style={{ flexBasis: "100%", height: "0" }}></div>
+            
+            <div style={{ flex: 1, minWidth: "150px" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Groom Name</label>
+              <input 
+                required 
+                className="search-input" 
+                placeholder="e.g. John" 
+                value={groomName}
+                onChange={e => setGroomName(e.target.value)}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: "150px" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Bride Name</label>
+              <input 
+                required 
+                className="search-input" 
+                placeholder="e.g. Jane" 
+                value={brideName}
+                onChange={e => setBrideName(e.target.value)}
+              />
+            </div>
             <div style={{ flex: 2, minWidth: "250px" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem" }}>Invitation Wording (QR Data)</label>
               <input 
@@ -140,7 +170,9 @@ export default function EventSelection() {
                 onChange={e => setQrCustomText(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary" disabled={creating} style={{ height: "42px" }}>
+            
+            <div style={{ flexBasis: "100%", height: "0" }}></div>
+            <button type="submit" className="btn btn-primary" disabled={creating} style={{ height: "48px", width: "100%", marginTop: "10px" }}>
               {creating ? "Saving..." : "Save Wedding ✅"}
             </button>
 
