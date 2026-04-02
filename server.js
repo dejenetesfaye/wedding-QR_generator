@@ -13,9 +13,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Allow CORS from our Vercel frontend
+// Allow CORS from our Vercel frontend with Credentials support
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://wedding-qr-generator.vercel.app",
+  "https://wedding-qr-personalization.vercel.app",
+  "http://localhost:3000"
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -25,7 +40,6 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/events", require("./routes/events"));
 app.use("/api/invite", require("./routes/invite"));
-app.use("/api/templates", require("./routes/templates"));
 app.use("/api/templates", require("./routes/templates"));
 
 // Serve qrcodes.pdf for download
