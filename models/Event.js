@@ -8,8 +8,10 @@ const eventSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   managerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   description: { type: String },
-  qrCustomText: { type: String, default: "Welcome to our wedding!" }
-
+  qrCustomText: { type: String, default: "Welcome to our wedding!" },
+  templateId: { type: mongoose.Schema.Types.ObjectId, ref: "Template" },
+  weddingData: { type: Object, default: {} },
+  isPublished: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Event", eventSchema);

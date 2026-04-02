@@ -27,13 +27,17 @@ router.get("/slug/:slug", async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Wedding not found" });
     }
-    // Only return safe public data needed for the portal
+    // Only return safe public data needed for the portal and website
     res.json({
       _id: event._id,
       name: event.name,
       qrCustomText: event.qrCustomText,
       groomName: event.groomName,
-      brideName: event.brideName
+      brideName: event.brideName,
+      date: event.date,
+      templateId: event.templateId,
+      weddingData: event.weddingData,
+      isPublished: event.isPublished
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -86,6 +90,40 @@ router.post("/", protect, async (req, res) => {
     if (error.code === 11000 && error.keyPattern && error.keyPattern.slug) {
       return res.status(400).json({ message: "This Unique Link Name is already taken. Please choose another one." });
     }
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+// @desc    Update an event / wedding website details
+// @route   PUT /api/events/:id
+// @access  Private
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Admins can update anything; Managers only their own
+    if (req.user.role !== "ADMIN" && event.managerId.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized to update this event" });
+    }
+
+    const { templateId, weddingData, isPublished, groomName, brideName, name, slug, date } = req.body;
+    
+    if (templateId !== undefined) event.templateId = templateId;
+    if (weddingData !== undefined) event.weddingData = weddingData;
+    if (isPublished !== undefined) event.isPublished = isPublished;
+    if (groomName !== undefined) event.groomName = groomName;
+    if (brideName !== undefined) event.brideName = brideName;
+    if (name !== undefined) event.name = name;
+    if (slug !== undefined) event.slug = slug;
+    if (date !== undefined) event.date = date;
+
+    const updatedEvent = await event.save();
+    res.json(updatedEvent);
+  } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });

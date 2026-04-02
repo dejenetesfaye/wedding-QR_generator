@@ -94,6 +94,9 @@ export default function Dashboard() {
           <Link to={`/generate/${eventId}`} className="btn btn-success">
             Gen QR 🖨️
           </Link>
+          <Link to={`/editor/${eventId}`} className="btn" style={{background: '#8b5cf6', color: 'white', fontWeight: 'bold'}}>
+            Edit Website 🌐
+          </Link>
           <Link to={`/scan/${eventId}`} className="btn btn-primary">
             Scanner 📷
           </Link>

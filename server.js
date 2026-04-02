@@ -25,6 +25,8 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/events", require("./routes/events"));
 app.use("/api/invite", require("./routes/invite"));
+app.use("/api/templates", require("./routes/templates"));
+app.use("/api/rsvp", require("./routes/rsvp"));
 
 // Serve qrcodes.pdf for download
 app.get("/api/download/qrcodes.pdf", (req, res) => {
