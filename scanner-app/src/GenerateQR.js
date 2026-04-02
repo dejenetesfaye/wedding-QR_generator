@@ -28,7 +28,7 @@ export default function GenerateQR() {
   };
 
   const handleAddFiveRows = () => {
-    const newRows = Array(5).fill({ name: "", phone: "" });
+    const newRows = Array.from({ length: 5 }, () => ({ name: "", phone: "" }));
     setGuests([...guests, ...newRows]);
   };
 
