@@ -82,6 +82,21 @@ export default function TemplateGallery() {
     setShowForm(false);
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image is too large. Please select a file under 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (loading) return <div className="app-container" style={{textAlign:"center", marginTop:"50px"}}>Loading Portfolio...</div>;
 
   return (
@@ -118,9 +133,29 @@ export default function TemplateGallery() {
               <input required className="search-input" value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://template-site.com" />
             </div>
 
+            <div style={{ display: "flex", gap: "15px", alignItems: "flex-end" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: "block", marginBottom: "5px", fontSize: "0.8rem", color: "var(--text-muted)" }}>Preview Image URL (or upload below)</label>
+                <input className="search-input" value={previewImage} onChange={e => setPreviewImage(e.target.value)} placeholder="https://image-host.com/thumb.jpg" />
+              </div>
+              <div style={{ width: "100px", height: "60px", background: `#222 url(${previewImage || 'https://via.placeholder.com/100x60'}) center/cover`, borderRadius: "8px", border: "1px solid var(--glass-border)" }}></div>
+            </div>
+
             <div>
-              <label style={{ display: "block", marginBottom: "5px", fontSize: "0.8rem", color: "var(--text-muted)" }}>Preview Image URL</label>
-              <input className="search-input" value={previewImage} onChange={e => setPreviewImage(e.target.value)} placeholder="https://image-host.com/thumb.jpg" />
+              <label style={{ display: "block", marginBottom: "5px", fontSize: "0.8rem", color: "var(--gold)" }}>📤 Upload from Local Machine</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileUpload} 
+                style={{ 
+                  background: "rgba(255,255,255,0.05)", 
+                  padding: "10px", 
+                  borderRadius: "8px", 
+                  width: "100%", 
+                  border: "1px solid var(--glass-border)",
+                  color: "var(--text-muted)"
+                }} 
+              />
             </div>
 
             <div>
