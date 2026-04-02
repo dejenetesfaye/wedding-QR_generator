@@ -78,9 +78,17 @@ export default function GuestPortal() {
           </div>
         ) : qrMatches.length === 0 ? (
           <>
-            <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2rem", lineHeight: "1.6" }}>
               {eventDetails && (eventDetails.groomName || eventDetails.brideName)
-                ? `You are warmly invited to celebrate the wedding of ${eventDetails.groomName || ''} & ${eventDetails.brideName || ''}. Enter your phone number below.`
+                ? (
+                  <>
+                    You are warmly invited to celebrate the wedding of{" "}
+                    <span style={{ color: "var(--gold)", fontWeight: "bold", fontSize: "1.15em" }}>
+                      {eventDetails.groomName || ''} &amp; {eventDetails.brideName || ''}
+                    </span>
+                    . Enter your phone number below.
+                  </>
+                )
                 : "You are warmly invited to celebrate the wedding. Enter your phone number below."}
             </p>
             <form onSubmit={handleLookup}>
