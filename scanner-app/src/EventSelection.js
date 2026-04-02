@@ -93,6 +93,9 @@ export default function EventSelection() {
               Managers 👥
             </Link>
           )}
+          <Link to="/templates" className="btn" style={{ background: "rgba(212, 175, 55, 0.1)", color: "var(--gold)", border: "1px solid var(--gold)" }}>
+            Templates 🖼️
+          </Link>
           <span style={{ fontWeight: 500, color: "var(--text-muted)" }}>{user?.name}</span>
           <button onClick={logout} className="btn" style={{ background: "#fee2e2", color: "#991b1b" }}>Logout</button>
         </div>

@@ -16,8 +16,7 @@ import API from "./config";
 
 
 import GuestPortal from "./GuestPortal";
-import TemplateRenderer from "./TemplateRenderer";
-import WebsiteEditor from "./WebsiteEditor";
+import TemplateGallery from "./TemplateGallery";
 
 function Home() {
   const { eventId } = useParams();
@@ -102,12 +101,9 @@ function App() {
         {/* Protected Manager Routes */}
         <Route path="/events" element={<ProtectedRoute><EventSelection /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+        <Route path="/templates" element={<ProtectedRoute><TemplateGallery /></ProtectedRoute>} />
         <Route path="/dashboard/:eventId" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/generate/:eventId" element={<ProtectedRoute><GenerateQR /></ProtectedRoute>} />
-        <Route path="/editor/:eventId" element={<ProtectedRoute><WebsiteEditor /></ProtectedRoute>} />
-
-        {/* Full Wedding Website Render Route */}
-        <Route path="/weddings/:slug" element={<TemplateRenderer />} />
 
         {/* Unique Wedding Link Route (Catch-all for slugs) */}
         <Route path="/:slug" element={<GuestPortal />} />

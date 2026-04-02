@@ -27,17 +27,14 @@ router.get("/slug/:slug", async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Wedding not found" });
     }
-    // Only return safe public data needed for the portal and website
+    // Only return safe public data needed for the portal
     res.json({
       _id: event._id,
       name: event.name,
       qrCustomText: event.qrCustomText,
       groomName: event.groomName,
       brideName: event.brideName,
-      date: event.date,
-      templateId: event.templateId,
-      weddingData: event.weddingData,
-      isPublished: event.isPublished
+      date: event.date
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -110,16 +107,15 @@ router.put("/:id", protect, async (req, res) => {
       return res.status(401).json({ message: "Not authorized to update this event" });
     }
 
-    const { templateId, weddingData, isPublished, groomName, brideName, name, slug, date } = req.body;
+    const { groomName, brideName, name, slug, date, description, qrCustomText } = req.body;
     
-    if (templateId !== undefined) event.templateId = templateId;
-    if (weddingData !== undefined) event.weddingData = weddingData;
-    if (isPublished !== undefined) event.isPublished = isPublished;
     if (groomName !== undefined) event.groomName = groomName;
     if (brideName !== undefined) event.brideName = brideName;
     if (name !== undefined) event.name = name;
     if (slug !== undefined) event.slug = slug;
     if (date !== undefined) event.date = date;
+    if (description !== undefined) event.description = description;
+    if (qrCustomText !== undefined) event.qrCustomText = qrCustomText;
 
     const updatedEvent = await event.save();
     res.json(updatedEvent);
